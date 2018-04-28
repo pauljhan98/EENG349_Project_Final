@@ -20,7 +20,6 @@ float x_value; //current value of x for table generation
 long i = 0; //counter for iterations
 float output_buffer[2]; //output buffer for external sram transmission
 long address_counter = 0; //external sram address counter
-bool graph_flag = false;
 //end arithmetic logic private
 
 
@@ -30,15 +29,17 @@ long output_end_address; //end address of output in sram (actual last address is
 //end references
 
 //start constructor
-Arithmetic_Logic::Arithmetic_Logic(){ 
-  //nothing here  
+Arithmetic_Logic::Arithmetic_Logic() {
+  //nothing here
 }
 //end constuctor
 
 
 bool Arithmetic_Logic::calculate(long& output_start_address, long& output_end_address) {
+  if (graph_flag == true){
+    Serial.println("graph flag is on");
+  }
   //start initial stack reversal
-  bool graph_flag = false;
   temp_array_size = stack.count(); //number of items in stack = [i]
   stack_sort_array = calloc(stack.count(), sizeof(float) );  //temp array size of stack
   for ( int i = 0; i < temp_array_size; i++) { //load stack into array
@@ -77,11 +78,10 @@ bool Arithmetic_Logic::calculate(long& output_start_address, long& output_end_ad
       c = (int)stack.pop(); //operator
 
       if (b == 'x' - '0' || b == 'X' - '0') { //changes x to current x value on table
-        bool graph_flag = true;
+        
         b = x_value;
       }
       if (a == 'x' - '0' || a == 'X' - '0') { //changes x to current x value on table
-        bool graph_flag = true;
         a = x_value;
       }
 
@@ -117,18 +117,18 @@ bool Arithmetic_Logic::calculate(long& output_start_address, long& output_end_ad
     } //end while stack.isEmpty
 
     //start external sram transmission
-    Serial.println(stack.pop());
 
-    /*
-      output_buffer[0] = x_value; //x coordinate
-      output_buffer[1] = stack.pop(); //y coordinate
-      SpiRam.write_floats(address_counter,output_buffer,2);
-      output_end_address = address_counter; //last address of output on last loop
-      address_counter+=sizeof(output_buffer);
-      //end external sram transmission
 
-      operator_flags_ptr = &operator_flags[0]; //reset operator flags pointer
-    */
+
+    output_buffer[0] = x_value; //x coordinate
+    output_buffer[1] = stack.pop(); //y coordinate
+    SpiRam.write_floats(address_counter, output_buffer, 2);
+    output_end_address = address_counter; //last address of output on last loop
+    address_counter += sizeof(output_buffer);
+    //end external sram transmission
+
+    operator_flags_ptr = &operator_flags[0]; //reset operator flags pointer
+
   } while (x_operator_flag == true); //keeps generating answers per x value until final iteration
 
 
@@ -138,30 +138,31 @@ bool Arithmetic_Logic::calculate(long& output_start_address, long& output_end_ad
   assembled_count = 0;
   //end reset and housekeeping
 
-  
-  /*
 
-    Serial.println();
-    Serial.print(F("Output Start Address (in sram): "));
-    Serial.println(output_start_address);
-    Serial.println();
-    Serial.print(F("Output End Address (in sram): "));
-    Serial.println(output_end_address);
-    Serial.println();
 
-    //start transmission from external sram
-    for (long i = output_start_address;i <= output_end_address; i += sizeof(output_buffer)){
-    SpiRam.read_floats(i,output_buffer,2);
+
+  Serial.println();
+  Serial.print(F("Output Start Address (in sram): "));
+  Serial.println(output_start_address);
+  Serial.println();
+  Serial.print(F("Output End Address (in sram): "));
+  Serial.println(output_end_address);
+  Serial.println();
+
+  //start transmission from external sram
+  for (long i = output_start_address; i <= output_end_address; i += sizeof(output_buffer)) {
+    SpiRam.read_floats(i, output_buffer, 2);
     Serial.println();
     Serial.print(F("The Answer is: "));
     Serial.print(output_buffer[1]);
-    if (graph_flag == true){
+    if (graph_flag == true) {
       Serial.print(F(" for x = "));
       Serial.print(output_buffer[0]);
       Serial.println();
     }
+    Serial.println();
 
-    }//end for output start adddress
-  */
+  }//end for output start adddress
+
   return graph_flag;
 }//end arthmetic logic

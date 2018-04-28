@@ -13,7 +13,7 @@ SpiRAM SpiRam(SPI_CLOCK_DIV2, SS_PIN, CHIP_23LC1024);
 
 float x_start = 1; //starting value of x //all following are temp values
 float step_size = 1; //step size of graph (value per pixel)
-long iterations = 240; //number of x iterations
+long iterations = 10; //number of x iterations
 long start_address;
 long end_address;
 
@@ -33,11 +33,17 @@ void setup() {
 
 void loop() {
   if (input_parser.parse_input()) {
-    if (arithmetic_logic.calculate(start_address,end_address));{
-      Serial.println("graph Flag on"); 
+    if (arithmetic_logic.calculate(start_address,end_address) == true){
+      Serial.println("graph flag on"); 
+    }else {
+      Serial.println("graph flag off");
     }
-    Serial.println(start_address);
-    Serial.println(end_address);    
+    Serial.println();
+    Serial.print("passed start address: ");
+    Serial.print(start_address);    
+    Serial.println();
+    Serial.print("passed end address: ");
+    Serial.print(end_address);    
   }  
 
 

@@ -27,6 +27,7 @@ byte assembled_count = 0; //number of assembled values in stack
 char operator_flags[21]; //char array for keeping track of which stack items are operators (includes X variable)
 char *operator_flags_ptr;
 bool x_operator_flag = false; //flag when X operator detected, triggers Arithmetic logic graph table
+static bool graph_flag = false; //triggers when graphing
 //end input parsing external
 
 //start constructor
@@ -42,7 +43,7 @@ Input_Parser::Input_Parser() {
 
 //parses input stream into numbers and operators //MAX 9 digits with 7-8 digit accuracy //max 20 operators per whole input
 bool Input_Parser::parse_input() { //RPN input style, format e.g. -12,34.56,+,-78.09,- //-,+,*,^,/ operators supported
-
+  graph_flag = false;
   newInput = false;
   while (Serial.available() > 0 && newInput == false) { //still recieving keypresses for current input
     RawInput = Serial.read() - '0'; //convert from ASCII value to numerical value
@@ -144,6 +145,7 @@ bool Input_Parser::parse_input() { //RPN input style, format e.g. -12,34.56,+,-7
         *operator_flags_ptr = (char)(assembled_count + '0'); //keeps track of which numbers in stack are actually operators
         operator_flags_ptr++;
         x_operator_flag = true; //(triggers arthmetic logic)
+        graph_flag = true;
         break;
 
       case '-'-'0': //has to detect negatives from minus operator

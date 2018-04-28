@@ -17,6 +17,7 @@ extern byte assembled_count; //number of assembled values in stack
 extern char operator_flags[21]; //char array for keeping track of which stack items are operators (includes X variable)
 extern char *operator_flags_ptr;
 extern bool x_operator_flag;
+extern bool graph_flag;
 
 
 class Input_Parser {
