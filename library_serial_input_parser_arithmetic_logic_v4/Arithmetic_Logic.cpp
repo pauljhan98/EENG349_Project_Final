@@ -158,7 +158,7 @@ bool Arithmetic_Logic::calculate(long& output_start_address, long& output_end_ad
       Serial.print(c);
     
       switch (c) { //determine which operator; must be int;should be float without decimal
-          operator_flags_ptr++;
+          
         case '+'-'0':
           stack.push(a + b);
           break;
