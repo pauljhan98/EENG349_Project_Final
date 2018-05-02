@@ -56,8 +56,7 @@ bool Arithmetic_Logic::calculate(long& output_start_address, long& output_end_ad
   c = 0;
   pop_count = 0;
   operator_flags_ptr = &operator_flags[0]; //reset operator flags pointer
-  if (graph_flag == true) {
-    Serial.println("graph flag is on");
+  if (graph_flag == true) {    
   }
   //start initial stack reversal
   temp_array_size = stack.count(); //number of items in stack = [i]
@@ -69,20 +68,15 @@ bool Arithmetic_Logic::calculate(long& output_start_address, long& output_end_ad
 
   output_start_address = address_counter; //set initial address for output
   x_value = X_CENTER - (160 * WEIGHT); //set x value correct for first iteration
-  Serial.println();
-  Serial.print("x_value before do loop: ");
-  Serial.print(x_value);
-
+  
   do { //if x operator true run many time to generate table, else run once
 
     //start iteration counter
     if (x_operator_flag == true) {
       x_value += WEIGHT;
-      //  Serial.println();
-      //  Serial.print("x_value during do loop: ");
-      //   Serial.print(x_value);
+      
       i++;
-      //Serial.println(i);
+     
       if (i == iterations) { //number of iterations reached
         x_operator_flag = false; //exit table generation (do..while)
       }
@@ -108,70 +102,23 @@ bool Arithmetic_Logic::calculate(long& output_start_address, long& output_end_ad
       c = (int)stack.pop(); //operator
       pop_count++;
 
-      /*   Serial.println();
-         Serial.print("a_value before assignment: ");
-         Serial.print((float)a);
-         Serial.println();
-         Serial.print("b_value before assignment: ");
-         Serial.print((float)b);
-         Serial.println();
-         Serial.print("c_value before assignment: ");
-         Serial.print(c);
-         Serial.println();
-         Serial.print("pop_count: ");
-         Serial.print(pop_count);
-         Serial.println();
-         Serial.print("*operator_flags_ptr: ");
-         Serial.print(*operator_flags_ptr);
-         Serial.println();
-         Serial.print("operator_flags_ptr: ");
-         Serial.print(operator_flags_ptr); */
 
-      if (((pop_count - 2) == (int)(*operator_flags_ptr - '0'))) {
-        //    Serial.println();
-        //   Serial.println("a value detected as x");
-      }
       if ((a == 'x' - '0' || a == 'X' - '0') && (pop_count - 2 == (int)*operator_flags_ptr - '0')) { //changes x to current x value on table
         a = x_value;
         operator_flags_ptr++;
-        /*   Serial.println();
-           Serial.println("This is x value inside if statement a");
-           Serial.println((float)x_value);
-           Serial.println(); */
+      
       }
-      /*    Serial.println();
-          Serial.print("*operator_flags_ptr: ");
-          Serial.print(*operator_flags_ptr);
-          Serial.println(); */
+     
 
-      if (((pop_count - 1) == (int)(*operator_flags_ptr - '0'))) {
-        //  Serial.println();
-        //  Serial.println("b value detected as x");
-      }
+
       if ((b == 'x' - '0' || b == 'X' - '0') && ((pop_count - 1) == (int)*operator_flags_ptr - '0')) { //changes x to current x value on table
 
         b = x_value;
         operator_flags_ptr++;
-        /*   Serial.println();
-           Serial.println("This is x value inside if statement b");
-           Serial.println((float)x_value);
-           Serial.println(); */
+       
       }
 
-      /*
-        Serial.println();
-        Serial.print("a_value after assignment: ");
-        Serial.print((float)a);
-        Serial.println();
-        Serial.print("b_value after assignment: ");
-        Serial.print((float)b);
-        Serial.println();
-        Serial.print("c_value after assignment: ");
-        Serial.print(c);
-        Serial.println();
-        Serial.print("*operator_flags_ptr: ");
-        Serial.print(*operator_flags_ptr);
-        Serial.println(); */
+
 
       switch (c) { //determine which operator; must be int;should be float without decimal
 
@@ -228,15 +175,9 @@ bool Arithmetic_Logic::calculate(long& output_start_address, long& output_end_ad
       if (stack.count() == 1) { //if only one stack item left after operation, that is final value
         break;
       }
-      /*  Serial.println();
-        Serial.println("stack.peek");
-        Serial.println(stack.peek());
-        Serial.println(); */
+   
       operator_flags_ptr++;
-      /*   Serial.println();
-         Serial.print("*operator_flags_ptr: ");
-         Serial.print(*operator_flags_ptr);
-         Serial.println(); */
+ 
 
     } //end while stack.isEmpty
 
@@ -244,14 +185,7 @@ bool Arithmetic_Logic::calculate(long& output_start_address, long& output_end_ad
     //start external sram transmission
     output_buffer[0] = x_value; //x coordinate
     output_buffer[1] = stack.pop(); //y coordinate
-    /*   Serial.println();
-       Serial.print("Y value is: ");
-       Serial.print(output_buffer[1]);
-       Serial.println();
-       Serial.print("x value is: ");
-       Serial.print(output_buffer[0]);
-       Serial.println(); */
-
+ 
 
     SpiRam.write_floats(address_counter, output_buffer, 2);
     output_end_address = address_counter; //last address of output on last loop
@@ -273,29 +207,6 @@ bool Arithmetic_Logic::calculate(long& output_start_address, long& output_end_ad
 
 
 
-
-  Serial.println();
-  Serial.print(F("Output Start Address (in sram): "));
-  Serial.println(output_start_address);
-  Serial.println();
-  Serial.print(F("Output End Address (in sram): "));
-  Serial.println(output_end_address);
-  Serial.println();
-
-  /*
-    //start transmission from external sram
-    for (long i = output_start_address; i <= output_end_address; i += sizeof(output_buffer)) {
-      SpiRam.read_floats(i, output_buffer, 2);
-      Serial.println();
-      Serial.print(F("The Answer is: "));
-      Serial.print(output_buffer[1]);
-      if (graph_flag == true) {
-        Serial.print(F(" for x = "));
-        Serial.print(output_buffer[0]);
-        Serial.println();
-      }
-      Serial.println();
-    }//end for output start adddress */
 
   return graph_flag;
 }//end arthmetic logic
